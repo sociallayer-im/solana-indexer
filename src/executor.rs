@@ -7,8 +7,8 @@ use {
     std::sync::Arc,
 };
 
-pub use solana_client::rpc_response::RpcConfirmedTransactionStatusWithSignature as TxSignature;
-pub use solana_transaction_status::EncodedConfirmedTransactionWithStatusMeta as TxMeta;
+pub type TxSignature = solana_client::rpc_response::RpcConfirmedTransactionStatusWithSignature;
+pub type TxMeta = solana_transaction_status::EncodedConfirmedTransactionWithStatusMeta;
 
 /// An entity that is called on every indexed consequentially
 pub enum Executor<E = ()> {
