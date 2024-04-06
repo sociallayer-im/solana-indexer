@@ -1,0 +1,12 @@
+indexer_settings:
+  program_id: "hapiAwBQLYRXrjGn6FLCgC8FpQd2yWbKMqS6AYZ48g6"
+  connection_str: "https://api.devnet.solana.com"
+  timestamp_interval: 5
+  migrate: true
+db_settings:
+  host: "localhost"
+  port: 5432
+  username: "postgres"
+  password: "postgres"
+  database_name: "indexer"
+  require_ssl: false

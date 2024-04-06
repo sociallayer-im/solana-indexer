@@ -1,0 +1,68 @@
+.test_cache: &test_cache
+  cache:
+  - key: "$CI_COMMIT_REF_SLUG"
+    paths:
+      - target/debug
+
+.rust_build: &rust_build
+  image: "ars9/rust:postgres"
+  before_script:
+    - rustc --version
+    - cargo --version
+
+services:
+  - postgres:15-alpine
+
+variables:
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: indexer
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_HOST_AUTH_METHOD: trust
+  DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}
+  CARGO_HOME: "/cache/cargo/"
+
+stages:
+  - test
+  - build
+  - deploy
+
+test-code:
+  <<: *rust_build
+  <<: *test_cache
+  stage: test
+  before_script:
+    - "sed -i 's/host: \"localhost\"/host: \"postgres\"/' configuration.yaml"
+  script:
+    - cargo test
+    - cargo tarpaulin --ignore-tests
+
+lint-code:
+  <<: *rust_build
+  <<: *test_cache
+  stage: test
+  script:
+    - cargo clippy -- -D warnings
+
+format-code:
+  <<: *rust_build
+  <<: *test_cache
+  stage: test
+  script:
+    - cargo fmt -- --check
+
+## Temporarily disabled due to ansi_term vulnerability
+# audit-code:
+#   <<: *rust_build
+#   <<: *test_cache
+#   stage: test
+#   script:
+#     - cargo audit
+
+publish:
+  <<: *rust_build
+  stage: build
+  script:
+    - cargo publish
+  only:
+    - tags
